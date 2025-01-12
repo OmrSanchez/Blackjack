@@ -9,7 +9,7 @@ def create_deck(cards, deck):
 
 def decide_winner(player_score, computer_score):
 	if player_score == computer_score and (
-			player_score < 21 and computer_score < 21):
+
 		print("Draw")
 	elif player_score <= 21 and computer_score > 21:
 		print("Opponent went over. You win.")
