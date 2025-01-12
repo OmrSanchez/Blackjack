@@ -1,5 +1,4 @@
 import FreeSimpleGUI as gui
-from FreeSimpleGUI import easy_print, popup_animated, popup_ok
 import cards_dict
 from functions import *
 
@@ -18,12 +17,13 @@ exit_button = gui.Button("EXIT", key="-EXIT-", auto_size_button=True, button_col
 hit_button = gui.Button("HIT", key="-HIT-")
 hold_button = gui.Button("HOLD", key="-HOLD-")
 quit_button = gui.Button("QUIT", key="-QUIT-", button_color="red")
-play_again_button = gui.Button("PLAY AGAIN", key="-PLAY-AGAIN-BUTTON-", visible=True, button_color="blue", font="Arial, 20", auto_size_button=True, pad=(0, 10))
+play_again_button = gui.Button("PLAY AGAIN", key="-PLAY-AGAIN-BUTTON-", visible=True, font="Arial, 20", auto_size_button=True, pad=(0, 10))
 
 # Player Main Logic
 player_cards = [select_cards(DECK_DEST_LIST)[0] for i in range(2)]
 init_index = store_index(player_cards, DECK_DEST_LIST)
 current_card_values_list = [CARD_VALUE_LIST[i] for i in init_index]
+remove_cards(player_cards, DECK_DEST_LIST)
 current_sum = sum(current_card_values_list)
 current_score = gui.Text(current_sum, font=("Arial", 12), key="-SCORE-", pad=(10, 10))
 
@@ -82,46 +82,56 @@ while True:
 		player_cards.append(next_card)
 		next_card_value = CARD_VALUE_LIST[DECK_DEST_LIST.index(next_card)]
 		current_card_values_list.append(next_card_value)
+		remove_next_card(player_cards, DECK_DEST_LIST)
+		for i in current_card_values_list:
+			if check_ace(i):
+				if (sum(current_card_values_list) - i) + 11 > 21:
+					current_card_values_list.remove(i)
+					current_card_values_list.append(1)
+				elif (sum(current_card_values_list) < 21) and (sum(current_card_values_list) - i) + 11 <= 21:
+					current_card_values_list.remove(i)
+					current_card_values_list.append(11)
 		current_sum = sum(current_card_values_list)
-
 		for i in player_cards:
 			graph.DrawImage(i, location=(PLAYER_X, PLAYER_Y))
 			PLAYER_X += 20
-
-
-
 		window["-SCORE-"].update(current_sum)
-
-
 
 	elif event == '-HOLD-':
 		window["-PLAYER-CONTROLS-"].update(visible=False)
 		window["-PLAY-AGAIN-"].update(visible=True)
-
-		#Computer Logic
 		npc_cards, npc_score_number, npc_index, npc_card_values_list = npc_hit(CARD_VALUE_LIST, DECK_DEST_LIST)
 		for i in npc_cards:
 			graph.DrawImage(i, location=(NPC_X, NPC_Y))
 			NPC_X += 20
 		window["-NPC-SCORE-"].update(npc_score_number)
-		#Decide Winner
-		print(decide_result(current_sum, npc_score_number))
 
+		declare_result(current_sum, npc_score_number)
 
 	elif event == '-PLAY-AGAIN-BUTTON-':
+		DECK_DEST_LIST = extract_dest_and_values(DECK_LIST)[0]
 		window["-PLAYER-CONTROLS-"].update(visible=True)
 		window["-PLAY-AGAIN-"].update(visible=False)
 		window["-GRAPH-"].erase()
 		player_cards = [select_cards(DECK_DEST_LIST)[0] for i in range(2)]
 		init_index = store_index(player_cards, DECK_DEST_LIST)
 		current_card_values_list = [CARD_VALUE_LIST[i] for i in init_index]
+		remove_cards(player_cards, DECK_DEST_LIST)
+		for i in current_card_values_list:
+			if check_ace(i):
+				if (sum(current_card_values_list) - i) + 11 > 21:
+					current_card_values_list.remove(i)
+					current_card_values_list.append(1)
+				elif (sum(current_card_values_list) < 21) and (sum(current_card_values_list) - i) + 11 <= 21:
+					current_card_values_list.remove(i)
+					current_card_values_list.append(11)
 		current_sum = sum(current_card_values_list)
 		current_score.update(current_sum)
 		window["-SCORE-"].update(current_sum)
 		npc_score = "0"
 		window["-NPC-SCORE-"].update(npc_score)
-		for i in player_cards:
-			graph.DrawImage(i, location=(PLAYER_X, -280))
-			PLAYER_X += 60
+		for i in range(len(player_cards)):
+			graph.DrawImage(player_cards[i], location=(PLAYER_X, PLAYER_Y))
+			PLAYER_X += 20
 
 window.close()

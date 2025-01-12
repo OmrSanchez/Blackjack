@@ -1,4 +1,5 @@
 import random
+from FreeSimpleGUI import popup_ok
 
 def extract_dest_and_values(deck_list):
 	deck_dest_list = []
@@ -14,7 +15,6 @@ def select_cards(deck_dest_list):
 		card_select_local.append(random.choice(deck_dest_list))
 	return card_select_local
 
-#Grab index of selected cards
 def store_index(card_list, deck_dest_list_local):
 	index_list = []
 	for item in range(len(card_list)):
@@ -31,12 +31,12 @@ def check_if_bust(player_score, npc_score):
 	return False
 
 def decide_result(player_score, computer_score):
-	result = ["win", "lose", "draw", "no winner"]
+	result = ["win", "lose", "draw", "no winner", "blackjack"]
 	if player_score == computer_score and (player_score < 21 and computer_score < 21):
 		return result[2]
 	elif player_score <= 21 < computer_score:
 		return result[0]
-	elif player_score > 21 >= computer_score:
+	elif player_score > 21:
 		return result[1]
 	elif player_score > 21 and computer_score > 21:
 		return result[3]
@@ -44,36 +44,76 @@ def decide_result(player_score, computer_score):
 		return result[0]
 	elif computer_score < player_score <= 21:
 		return result[0]
-	elif player_score > computer_score and player_score <= 21:
+	elif computer_score < player_score <= 21:
 		return result[0]
+	elif player_score < computer_score <= 21:
+		return result[1]
 	else:
 		return result[3]
 
-# popup_ok(
-# 				keep_on_top = True,
-# 				title = "YOU LOSE!",
-# 				image="Popup Images/lose.png",
-# 				no_titlebar=False,
-# 			)
-#
-# if player_lose(player_score=current_sum):
-# 	popup_ok(
-# 		keep_on_top = True,
-# 		title = "YOU LOSE!",
-# 		image="Popup Images/lose.png",
-# 		no_titlebar=False,
-# 	)
-# 	window["-GRAPH-"].erase()
-# 	window["-PLAYER-CONTROLS-"].update(visible=False)
-# 	window["-PLAY-AGAIN-"].update(visible=True)
-# 	current_sum = 0
-# 	current_score.update(current_sum)
+def declare_result(player_score, computer_score):
+	match decide_result(player_score, computer_score):
+		case "win":
+			popup_ok(
+			title = "Blackjack - Win",
+			auto_close = False,
+			non_blocking = False,
+			no_titlebar = False,
+			grab_anywhere = False,
+			keep_on_top = True,
+			image = "Popup Images/win.png",
+			modal = True
+			)
+		case "lose":
+			popup_ok(
+				title="Blackjack - Win",
+				auto_close=False,
+				non_blocking=False,
+				no_titlebar=False,
+				grab_anywhere=False,
+				keep_on_top=True,
+				image="Popup Images/lose.png",
+				modal=True
+			)
+		case "draw":
+			popup_ok(
+				title="Blackjack - Win",
+				auto_close=False,
+				non_blocking=False,
+				no_titlebar=False,
+				grab_anywhere=False,
+				keep_on_top=True,
+				image="Popup Images/no_winner.png",
+				modal=True
+			)
+		case "no winner":
+			popup_ok(
+				title="Blackjack - Win",
+				auto_close=False,
+				non_blocking=False,
+				no_titlebar=False,
+				grab_anywhere=False,
+				keep_on_top=True,
+				image="Popup Images/no_winner.png",
+				modal=True
+			)
+		case "blackjack":
+			popup_ok(
+				title="Blackjack - Win",
+				auto_close=False,
+				non_blocking=False,
+				no_titlebar=False,
+				grab_anywhere=False,
+				keep_on_top=True,
+				image="Popup Images/blackjack.png",
+				modal=True
+			)
 
 def check_ace(card_value):
 	if card_value == 11 or card_value == 1:
 		return True
 
-def npc_hit(card_value_list, deck_dest_list, ):
+def npc_hit(card_value_list, deck_dest_list):
 	npc_cards = []
 	npc_index = []
 	npc_card_values_list = []
@@ -94,5 +134,10 @@ def npc_hit(card_value_list, deck_dest_list, ):
 			npc_score_number = sum(npc_card_values_list)
 	return npc_cards, npc_score_number, npc_index, npc_card_values_list
 
+def remove_cards(card_list, deck):
+	for card in card_list:
+		deck.remove(card)
 
-# (sum(npc_card_values_list) < 21) and
+def remove_next_card(card_list, deck):
+	for i in range(1):
+		deck.remove(card_list[-1])
