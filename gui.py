@@ -23,7 +23,6 @@ play_again_button = gui.Button("PLAY AGAIN", key="-PLAY-AGAIN-BUTTON-", visible=
 player_cards = [select_cards(DECK_DEST_LIST)[0] for i in range(2)]
 init_index = store_index(player_cards, DECK_DEST_LIST)
 current_card_values_list = [CARD_VALUE_LIST[i] for i in init_index]
-remove_cards(player_cards, DECK_DEST_LIST)
 current_sum = sum(current_card_values_list)
 current_score = gui.Text(current_sum, font=("Arial", 12), key="-SCORE-", pad=(10, 10))
 
@@ -82,7 +81,6 @@ while True:
 		player_cards.append(next_card)
 		next_card_value = CARD_VALUE_LIST[DECK_DEST_LIST.index(next_card)]
 		current_card_values_list.append(next_card_value)
-		remove_next_card(player_cards, DECK_DEST_LIST)
 		for i in current_card_values_list:
 			if check_ace(i):
 				if (sum(current_card_values_list) - i) + 11 > 21:
@@ -116,7 +114,6 @@ while True:
 		player_cards = [select_cards(DECK_DEST_LIST)[0] for i in range(2)]
 		init_index = store_index(player_cards, DECK_DEST_LIST)
 		current_card_values_list = [CARD_VALUE_LIST[i] for i in init_index]
-		remove_cards(player_cards, DECK_DEST_LIST)
 		for i in current_card_values_list:
 			if check_ace(i):
 				if (sum(current_card_values_list) - i) + 11 > 21:
