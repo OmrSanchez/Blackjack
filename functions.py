@@ -134,6 +134,10 @@ def npc_hit(card_value_list, deck_dest_list):
 			npc_score_number = sum(npc_card_values_list)
 	return npc_cards, npc_score_number, npc_index, npc_card_values_list
 
+
+
+
+
 def remove_cards(card_list, deck):
 	for card in card_list:
 		deck.remove(card)
