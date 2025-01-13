@@ -1,10 +1,16 @@
+import random
+
 import FreeSimpleGUI as gui
 import cards_dict
 from functions import *
 
-DECK_LIST = cards_dict.card_values_dict
-DECK_DEST_LIST = extract_dest_and_values(DECK_LIST)[0]
-CARD_VALUE_LIST = extract_dest_and_values(DECK_LIST)[1]
+DECK_LIST = cards_dict.deck
+# CARD_DEST_LIST = extract_dest_and_values(DECK_LIST)[0]
+# CARD_VALUE_LIST = extract_dest_and_values(DECK_LIST)[1]
+
+deck = extract_dest_and_values(DECK_LIST)
+print(deck)
+print(deck[0])
 
 #Game display configs
 
@@ -31,26 +37,27 @@ play_again_button = gui.Button("PLAY AGAIN", key="-PLAY-AGAIN-BUTTON-", size=(10
 # Display both scores
 start_score = 0
 game_title_image_start = gui.Image(source="Cards Pack/BlackJack Logo.png", size=(196, 50), key="-GAME-TITLE-IMG-START-", pad=(0,0))
-player_score = gui.Text(str(f"Your Score:\n\n        0"), text_color="white", key="-PLAYER-SCORE-", pad=(0,90))
-npc_score = gui.Text(str(f"Opponent Score:\n\n            0"), text_color="white", key="-NPC-SCORE-", pad=(0,80))
+player_score = gui.Text(str(f"Your Score:\n\n        {start_score}"), text_color="white", key="-PLAYER-SCORE-", pad=(0,90))
+npc_score = gui.Text(str(f"Opponent Score:\n\n            {start_score}"), text_color="white", key="-NPC-SCORE-", pad=(0,80))
 
 # Create window and manage layout as a graph.
 play_again_col = gui.Column([[play_again_button]],
 							key="-PLAY-AGAIN-",
-
 							visible=False,
 							pad=(0,0))
 
-scoreboard_col = gui.Column([[game_title_image_start], [npc_score], [player_score], [play_again_col]],
-							size=(200, 625),
+scoreboard_col = gui.pin(gui.Column([[game_title_image_start], [npc_score], [player_score], [play_again_col]],
+							size=(198, 625),
 							element_justification="center",
 							key="-SCOREBOARD-",
 							visible=False,
-							pad=(15,0))
+							pad=(10,0)))
 
 hit_hold_col = gui.Column([[hit_button, hold_button]],
+						  	element_justification="center",
 							key="-PLAYER-CONTROLS-",
-
+						    size=(500,50),
+						  	pad=(300, 0),
 						  	visible=False)
 
 layout = [
@@ -69,7 +76,8 @@ layout = [
 		drag_submits=True,
 		visible=False,
 	)],
-	[gui.Push(), gui.Column([[hit_hold_col]], element_justification="center"), gui.Push()],
+
+	[hit_hold_col],
 
 	[gui.Push(), gui.Column([[menu_jack, menu_ace]], key="-MENU-CARDS-", visible=True, element_justification="center"),
 	 gui.Push()],
@@ -79,7 +87,8 @@ layout = [
 	[[gui.VPush()]],
 ]
 
-window = gui.Window("Blackjack", layout, size=(1022, 690), finalize=True, location=(100, 100))
+window = gui.Window("Blackjack", layout, size=(1100, 800), finalize=True, location=(100, 100))
+# size=(1022, 690)
 graph = window["-GRAPH-"]
 graph.draw_line((-250, 250), (250, 250), color="black", width=4)
 graph.draw_line((-250, -250), (250, -250), color="black", width=4)
@@ -91,13 +100,12 @@ card_key_number = 1
 PLAYER_X = -40
 PLAYER_Y = -60
 NPC_X = -50
-NPC_Y = 125
+NPC_Y = 150
 
-# Player Main Logic
-player_cards = [select_cards(DECK_DEST_LIST)[0] for i in range(2)]
-init_index = store_index(player_cards, DECK_DEST_LIST)
-current_card_values_list = [CARD_VALUE_LIST[i] for i in init_index]
-current_sum = sum(current_card_values_list)
+player_score = 0
+player_cards = []
+npc_score = 0
+npc_cards = []
 
 while True:
 	event, values = window.read()
@@ -120,34 +128,48 @@ while True:
 		window["-SCOREBOARD-"].update(visible=True)
 		window["-GRAPH-"].update(visible=True)
 
+		# Track Cards
+		player_cards = [get_card(deck) for count in range(2)]
+		print(f"Player Cards: {player_cards}")
+
+		npc_cards = [get_card(deck) for count in range(2)]
+		print(f"NPC Cards: {npc_cards}")
+
+		# Track Scores
+		player_score = get_score(player_cards)
+		print(f"Player Score: {player_score}")
+		window["-PLAYER-SCORE-"].update(str(f"Your Score:\n\n        {player_score}"))
+
+		npc_score = get_score(npc_cards)
+		print(f"NPC Score: {npc_score}")
+		window["-NPC-SCORE-"].update(str(f"Your Score:\n\n        {npc_score}"))
+
 		for i in range(len(player_cards)):
-			graph.DrawImage(player_cards[i], location=(PLAYER_X, PLAYER_Y))
+			graph.DrawImage(player_cards[i]['dest'], location=(PLAYER_X, PLAYER_Y))
 			PLAYER_X += 20
+			PLAYER_Y += 20
 
-		for i in range(2):
-			graph.DrawImage("Cards Pack/card_colors/Back Blue 1.png", location=(NPC_X, NPC_Y))
-			NPC_X += 20
-
+		graph.DrawImage("Cards Pack/card_colors/Back Blue 1.png", location=(NPC_X, NPC_Y))
+		graph.DrawImage(npc_cards[1]['dest'], location=(NPC_X + 20, NPC_Y + 20))
 
 	elif event == '-HIT-':
-		card_key_number += 1
-		next_card = select_cards(DECK_DEST_LIST)[0]
+		next_card = get_card(deck)
 		player_cards.append(next_card)
-		next_card_value = CARD_VALUE_LIST[DECK_DEST_LIST.index(next_card)]
-		current_card_values_list.append(next_card_value)
-		for i in current_card_values_list:
-			if check_ace(i):
-				if (sum(current_card_values_list) - i) + 11 > 21:
-					current_card_values_list.remove(i)
-					current_card_values_list.append(1)
-				elif (sum(current_card_values_list) < 21) and (sum(current_card_values_list) - i) + 11 <= 21:
-					current_card_values_list.remove(i)
-					current_card_values_list.append(11)
-		current_sum = sum(current_card_values_list)
-		for i in player_cards:
-			graph.DrawImage(i, location=(PLAYER_X, PLAYER_Y))
+
+		player_score += next_card['value']
+		window["-PLAYER-SCORE-"].update(str(f"Your Score:\n\n        {player_score}"))
+
+		graph.erase()
+
+		PLAYER_X = -40
+		PLAYER_Y = -60
+		for i in range(len(player_cards)):
+			graph.DrawImage(player_cards[i]['dest'], location=(PLAYER_X, PLAYER_Y))
 			PLAYER_X += 20
-		window["-PLAYER-SCORE-"].update(f"Your Score:\n     {current_sum}")
+			PLAYER_Y += 20
+
+		graph.DrawImage("Cards Pack/card_colors/Back Blue 1.png", location=(NPC_X, NPC_Y))
+		graph.DrawImage(npc_cards[1]['dest'], location=(NPC_X + 20, NPC_Y + 20))
 
 	elif event == '-HOLD-':
 		window["-PLAYER-CONTROLS-"].update(visible=False)
@@ -160,29 +182,29 @@ while True:
 
 		declare_result(current_sum, npc_score_number)
 
-	elif event == '-PLAY-AGAIN-BUTTON-':
-		DECK_DEST_LIST = extract_dest_and_values(DECK_LIST)[0]
-		window["-PLAYER-CONTROLS-"].update(visible=True)
-		window["-PLAY-AGAIN-"].update(visible=False)
-		window["-GRAPH-"].erase()
-		player_cards = [select_cards(DECK_DEST_LIST)[0] for i in range(2)]
-		init_index = store_index(player_cards, DECK_DEST_LIST)
-		current_card_values_list = [CARD_VALUE_LIST[i] for i in init_index]
-		for i in current_card_values_list:
-			if check_ace(i):
-				if (sum(current_card_values_list) - i) + 11 > 21:
-					current_card_values_list.remove(i)
-					current_card_values_list.append(1)
-				elif (sum(current_card_values_list) < 21) and (sum(current_card_values_list) - i) + 11 <= 21:
-					current_card_values_list.remove(i)
-					current_card_values_list.append(11)
-		current_sum = sum(current_card_values_list)
-		player_score.update(current_sum)
-		window["-SCORE-"].update(current_sum)
-		npc_score = "0"
-		window["-NPC-SCORE-"].update(npc_score)
-		for i in range(len(player_cards)):
-			graph.DrawImage(player_cards[i], location=(PLAYER_X, PLAYER_Y))
-			PLAYER_X += 20
+	# elif event == '-PLAY-AGAIN-BUTTON-':
+	# 	DECK_DEST_LIST = extract_dest_and_values(DECK_LIST)[0]
+	# 	window["-PLAYER-CONTROLS-"].update(visible=True)
+	# 	window["-PLAY-AGAIN-"].update(visible=False)
+	# 	window["-GRAPH-"].erase()
+	# 	player_cards = [select_cards(DECK_DEST_LIST)[0] for i in range(2)]
+	# 	init_index = store_index(player_cards, DECK_DEST_LIST)
+	# 	current_card_values_list = [CARD_VALUE_LIST[i] for i in init_index]
+	# 	for i in current_card_values_list:
+	# 		if check_ace(i):
+	# 			if (sum(current_card_values_list) - i) + 11 > 21:
+	# 				current_card_values_list.remove(i)
+	# 				current_card_values_list.append(1)
+	# 			elif (sum(current_card_values_list) < 21) and (sum(current_card_values_list) - i) + 11 <= 21:
+	# 				current_card_values_list.remove(i)
+	# 				current_card_values_list.append(11)
+	# 	current_sum = sum(current_card_values_list)
+	# 	player_score.update(current_sum)
+	# 	window["-SCORE-"].update(current_sum)
+	# 	npc_score = "0"
+	# 	window["-NPC-SCORE-"].update(npc_score)
+	# 	for i in range(len(player_cards)):
+	# 		graph.DrawImage(player_cards[i], location=(PLAYER_X, PLAYER_Y))
+	# 		PLAYER_X += 20
 
 window.close()

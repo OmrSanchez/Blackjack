@@ -1,4 +1,4 @@
-card_values_dict = [
+deck = [
     [{"value": 1, "dest": "Cards Pack/Deck/Clubs 1.png"}],
     [{"value": 2, "dest": "Cards Pack/Deck/Clubs 2.png"}],
     [{"value": 3, "dest": "Cards Pack/Deck/Clubs 3.png"}],

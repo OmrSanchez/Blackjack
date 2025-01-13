@@ -1,25 +1,58 @@
 import random
 from FreeSimpleGUI import popup_ok
 
-def extract_dest_and_values(deck_list):
-	deck_dest_list = []
-	values_list_local = []
-	for cards in deck_list:
-		deck_dest_list.append(cards[0]["dest"])
-		values_list_local.append(cards[0]["value"])
-	return deck_dest_list, values_list_local
+def extract_dest_and_values(deck):
+	deck_dict = [deck[i][0] for i in range(52)]
+	return deck_dict
 
-def select_cards(deck_dest_list):
-	card_select_local = []
-	for i in range(2):
-		card_select_local.append(random.choice(deck_dest_list))
-	return card_select_local
+def check_ace(c_value):
+	if c_value == 1 or c_value == 11:
+		return True
 
-def store_index(card_list, deck_dest_list_local):
-	index_list = []
-	for item in range(len(card_list)):
-		index_list.append(deck_dest_list_local.index(card_list[item]))
-	return index_list
+def check_ace_list_card_values(list_of_card_values):
+	ace_local = [1, 11]
+	for card_val_local in list_of_card_values:
+		if check_ace(card_val_local):
+			card_index_local = list_of_card_values.index(card_val_local)
+			list_of_card_values.remove(card_val_local)
+			score_without_ace = sum(list_of_card_values)
+
+			if score_without_ace + 11 <= 21:
+				list_of_card_values.insert(card_index_local, ace_local[1])
+				print(f"Ace = 11: {list_of_card_values}")
+				return list_of_card_values
+			elif score_without_ace + 11 > 21:
+				list_of_card_values.insert(card_index_local, ace_local[0])
+				print(f"Ace = 1: {list_of_card_values}")
+				return list_of_card_values
+		else:
+			print(f"No Ace: {list_of_card_values}")
+			return list_of_card_values
+
+
+
+def get_card(deck):
+	selected_card = random.choice(deck)
+	deck.remove(selected_card)
+	return selected_card
+
+def get_card_value(cards):
+	card_value_list = [cards[val]['value'] for val in range(len(cards))]
+	print(f"Cards Values: {card_value_list}")
+	return card_value_list
+
+def get_card_dest(cards):
+	dest = [cards[des]['dest'] for des in range(len(cards))]
+	return dest
+
+def get_score(cards):
+	list_of_card_values = get_card_value(cards)
+	score = sum(check_ace_list_card_values(list_of_card_values))
+	return score
+
+
+
+
 
 def check_if_blackjack(score):
 	if score == 21:
@@ -109,10 +142,6 @@ def declare_result(player_score, computer_score):
 				modal=True
 			)
 
-def check_ace(card_value):
-	if card_value == 11 or card_value == 1:
-		return True
-
 def npc_hit(card_value_list, deck_dest_list):
 	npc_cards = []
 	npc_index = []
@@ -133,10 +162,6 @@ def npc_hit(card_value_list, deck_dest_list):
 						npc_card_values_list.append(11)
 			npc_score_number = sum(npc_card_values_list)
 	return npc_cards, npc_score_number, npc_index, npc_card_values_list
-
-
-
-
 
 def remove_cards(card_list, deck):
 	for card in card_list:
