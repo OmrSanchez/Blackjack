@@ -16,6 +16,8 @@ def decide_result(player_score, computer_score):
 		return result[0]
 	elif computer_score <= 21 < player_score:
 		return result[1]
+	elif (player_score and computer_score) == 21:
+		return result[2]
 
 def declare_result(player_score, computer_score, graph):
 	match decide_result(player_score, computer_score):
