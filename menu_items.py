@@ -1,11 +1,7 @@
-import FreeSimpleGUI as gui
-
-
 menu_def = [['Settings',
 			 [
 			  'Appearance',
-			  ['Change Theme',
-			   'Change Board Color', ['Black', 'Red', 'Blue', 'Green'],
+			  ['Change Board Color', ['Black', 'Red', 'Blue', 'Green'],
 			   'Change Card Color', ['Red Cards', 'Blue Cards', 'Grey Cards']
 			   ],
 			  'Game', ['Number of Decks',

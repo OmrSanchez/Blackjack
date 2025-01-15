@@ -25,6 +25,7 @@ play_again_button = gui.Button("PLAY AGAIN", key="-PLAY-AGAIN-BUTTON-", size=(10
 game_title_image_start = gui.Image(source="Cards Pack/BlackJack Logo.png", size=(196, 50), key="-GAME-TITLE-IMG-START-", pad=(0,0))
 player_score = gui.Text(str(f"Your Score:\n\n        {START_SCORE}"), text_color="white", key="-PLAYER-SCORE-", pad=(0,90))
 npc_score = gui.Text(str(f"Opponent Score:\n\n            {START_SCORE}"), text_color="white", key="-NPC-SCORE-", pad=(0,80))
+theme_list = gui.Listbox(gui.theme_list())
 
 scoreboard_col = gui.Column([[game_title_image_start], [npc_score], [player_score], [play_button]],
 							size=(198, 625),
