@@ -3,13 +3,14 @@ import cards_dict
 from func_main import *
 from func_outcome import *
 from menu_items import menu_def
-from settings_func import change_theme
+from settings_func import *
 
 NUMBER_OF_DECKS = 3
 DECK_LIST = cards_dict.deck
 DECK = extract_dest_and_values(DECK_LIST, NUMBER_OF_DECKS)
-theme = gui.theme("DarkGrey12")
-GRAPH_COLOR = "green"
+theme = gui.theme(new_theme="DarkGrey12")
+graph_color = "green"
+card_back_color = "Cards Pack/back_of_cards/Back Red 2.png"
 START_SCORE = 0
 gui.set_options(font="Arial, 18", element_padding=(0,0), text_color="gold", border_width=0)
 
@@ -47,7 +48,7 @@ layout = [
 		graph_bottom_left=(-250, -250),
 		graph_top_right=(250, 250),
 		key="-GRAPH-",
-		background_color=GRAPH_COLOR,
+		background_color='green',
 		change_submits=True,
 		drag_submits=True,
 		visible=False,
@@ -62,6 +63,7 @@ layout = [
 
 	[[gui.VPush()]],
 ]
+
 
 window = gui.Window("Blackjack", layout, size=(1050, 750), finalize=True, location=(350,150))
 graph = window["-GRAPH-"]
@@ -79,16 +81,29 @@ discard_pile = []
 while True:
 	event, values = window.read()
 	print(event, values)
-	user_theme = gui.theme_list()
-	print(event[:12])
 
 	if event == gui.WINDOW_CLOSED or event == '-EXIT-':
 		break
 	elif event == '-QUIT-':
 		break
 
-	elif event == "Change Theme":
-		theme = gui.theme(change_theme())
+	elif event == "Red Cards" or event =="Blue Cards" or event == "Grey Cards":
+		card_back_color = change_card_color(event)
+
+		NPC_X = -50
+		NPC_Y = 175
+		graph.DrawImage(card_back_color, location=(NPC_X, NPC_Y))
+
+		DISCARD_X = -230
+		DISCARD_Y = -50
+		for i in range(len(discard_pile)):
+			graph.DrawImage(card_back_color, location=(DISCARD_X, DISCARD_Y))
+			DISCARD_Y += 25
+
+
+	elif event == 'Black' or event == 'Red' or event == 'Blue' or event == 'Green':
+		graph_color = change_graph_color(event)
+		window["-GRAPH-"].update(background_color=graph_color)
 
 	elif (event == '1' or event == '2' or event == '3' or event == '4' or event == '5' or event
 		  == '6'):
@@ -127,12 +142,11 @@ while True:
 										 f"{npc_score - npc_cards[0]['value']}"))
 		NPC_X = -50
 		NPC_Y = 175
-		graph.DrawImage("Cards Pack/back_of_cards/Back Red 1.png", location=(NPC_X, NPC_Y))
+		graph.DrawImage(card_back_color, location=(NPC_X, NPC_Y))
 		graph.DrawImage(npc_cards[1]['dest'], location=(NPC_X + 20, NPC_Y))
 
 		for i in range(len(discard_pile)):
-			graph.DrawImage("Cards Pack/back_of_cards/Back Red 1.png", location=(DISCARD_X,
-																			   DISCARD_Y))
+			graph.DrawImage(card_back_color, location=(DISCARD_X, DISCARD_Y))
 			DISCARD_Y += 25
 
 		draw_graph_border(graph)
@@ -149,12 +163,12 @@ while True:
 		DISCARD_X = -230
 		DISCARD_Y = -50
 		for i in range(len(discard_pile)):
-			graph.DrawImage("Cards Pack/back_of_cards/Back Red 1.png", location=(DISCARD_X, DISCARD_Y))
+			graph.DrawImage(card_back_color, location=(DISCARD_X, DISCARD_Y))
 			DISCARD_Y += 25
 
 		draw_player_hand(player_cards, graph)
 
-		graph.DrawImage("Cards Pack/back_of_cards/Back Red 1.png", location=(NPC_X, NPC_Y))
+		graph.DrawImage(card_back_color, location=(NPC_X, NPC_Y))
 		graph.DrawImage(npc_cards[1]['dest'], location=(NPC_X + 20, NPC_Y))
 		draw_graph_border(graph)
 

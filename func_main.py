@@ -1,15 +1,5 @@
 import random
 
-# def extract_dest_and_values(deck):
-# 	deck_dict = []
-# 	for deck_count in range(6):
-# 		for card in range(52):
-# 			deck_dict.append(deck[card][0])
-# 	print(f"Deck length: {len(deck_dict)}")
-# 	print(deck_dict)
-# 	return deck_dict
-
-
 def extract_dest_and_values(deck, number_of_decks):
 	deck_dict = []
 	for deck_count in range(number_of_decks):
